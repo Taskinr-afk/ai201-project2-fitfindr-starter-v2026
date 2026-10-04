@@ -44,57 +44,31 @@ Given a query that matches no listings, the agent stops before calling
 
 ## 3. Something about state
 
-<!-- YOU WRITE THIS ONE.
-
-     How would you know that the item your search found is the same item the
-     next tool received? Name something countable or observable.
-
-     This is the criterion people find hardest, because state failure doesn't
-     look like state failure — it looks like a tool problem. Something that
-     compares session["selected_item"] against what actually reached
-     suggest_outfit is the shape you're after. -->
-
-
+The item in session["selected_item"] matches the item that actually reaches suggest_outfit, checked by id, and this holds in 5 of 5 tries.
 
 **Why this target:**
 
-
+The two tool calls never touch each other directly, everything passes through the session in between, and if the id drifts from one step to the next, the session has failed at its one job, so this should hold every time and not just most times.
 
 ---
 
 ## 4. Something about the fit card
 
-<!-- YOU WRITE THIS ONE.
-
-     The fit card calls a model, so the same input can produce different words
-     each time. That's not a bug — it's the nature of the tool. So what would
-     make it acceptable?
-
-     Think about what you'd actually be unhappy to see. A caption that never
-     mentions the price? Two different items producing the same opening
-     sentence? A card longer than a caption anyone would post? Any of those can
-     be turned into a number. -->
-
-
+The fit card names the item's price at least once, in 5 of 5 tries.
 
 **Why this target:**
 
-
+The price is a fact pulled straight from the listing rather than a creative choice, and while the wording can change every run, the price itself should never go missing, since a caption without it is dropped detail, not stylistic variation.
 
 ---
 
 ## 5. Your choice
 
-<!-- YOU WRITE THIS ONE TOO.
-
-     Pick something you actually care about getting right. Speed, the empty
-     wardrobe path, what happens when the model can't be reached, whether the
-     search respects a price ceiling — anything, as long as it names a number
-     or an observable outcome. -->
-
-
+When max_price is set, every listing search_listings returns is at or under that price, across 10 different queries.
 
 **Why this target:**
+
+The price ceiling is a hard filter rather than something the model can round on its own, so even one listing over budget means the filter is broken, which is why this one gets checked across more tries than the others.
 
 
 
