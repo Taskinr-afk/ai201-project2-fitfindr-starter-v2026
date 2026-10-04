@@ -59,24 +59,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** Takes the user's description and finds the listings that match it. Any listing over the price limit is dropped first. Any listing in the wrong size is dropped next. Each listing left gets a score for how many of the user's words show up in it. The search looks at the title as well as the description and the style tags.
+- **Inputs:** description (str), size (str or None), max_price (float or None).
+- **Returns:** A list of listing dicts with the best score first. The list holds at most 10 listings. Each dict has id, title, description, category, style_tags, size, condition, price, colors, brand and platform.
+- **When it has nothing:** An empty list. It never returns None and it never causes an error.
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** It takes a thrifted item and the user's wardrobe. It asks the model for one or two outfit ideas. If the wardrobe is empty, it asks for general styling advice instead.
+- **Inputs:** new_item (dict), wardrobe (dict with an items key holding a list).
+- **Returns:** A string with the model's outfit suggestion.
+- **When it has nothing:** With an empty wardrobe it still gives back a full string of general styling advice. It never returns an empty string. It never causes an error.
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does:** It writes a short caption someone could actually post about the find. It uses the outfit suggestion plus the item's price and platform.
+- **Inputs:** outfit (str), new_item (dict).
+- **Returns:** A string, two to four sentences long, written like a real post rather than a product listing.
+- **When it has nothing:** If outfit is empty or only whitespace, it returns a message saying there is no outfit to caption. It does not cause an error.
 
 ---
 
@@ -93,13 +93,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule:** If search_listings returns an empty list, put a message in session["error"] that tells the user what to change about their search. Then stop. Otherwise take the first result as session["selected_item"] and move on to suggest_outfit.
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** regex.
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session:** query first, then parsed holding description, size and max_price, then search_results, then selected_item, then outfit_suggestion, then fit_card. If the loop stops early, error gets set and the rest stay None.
 
 ---
 
