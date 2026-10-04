@@ -39,9 +39,7 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
-
-
+A user describes an item they want, in plain language, with an optional size and price limit, like "vintage graphic tee under $30, size M". FitFindr searches a set of secondhand listings for the best match, then looks at the user's existing wardrobe and suggests an outfit built around that item. It finishes by writing a short caption the user could post about the find. If nothing in the listings matches, FitFindr stops there and tells the user what to change about their search, instead of guessing.
 
 ---
 
@@ -113,25 +111,59 @@
 **One full query**
 
 ```
-$ python app.py ask '...'
+$ python app.py ask 'vintage graphic tee under $30, size M'
+  Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
 
+  Outfit:   Here are two ways to style the Y2K butterfly baby tee using pieces already in your wardrobe, leaning into that authentic early 2000s aesthetic:
+
+**Outfit 1: The Classic Y2K Streetwear Look**
+*   **Top:** Y2K Baby Tee — Butterfly Print
+*   **Bottoms:** Baggy straight-leg jeans, dark wash
+*   **Outerwear:** Vintage black denim jacket
+*   **Shoes:** Chunky white sneakers
+*   **Accessories:** Black crossbody bag
+*   *Why it works:* Pairing the fitted, cropped silhouette of the baby tee with baggy, dark-wash denim creates the quintessential Y2K proportion play. Tossing the vintage black denim jacket over top keeps the color palette grounded while adding an effortless, grunge-leaning edge, finished off with chunky sneakers and a crossbody.
+
+**Outfit 2: Casual Retro-Prep**
+*   **Top:** Y2K Baby Tee — Butterfly Print
+*   **Bottoms:** Wide-leg khaki trousers
+*   **Accessories:** Brown leather belt, Black crossbody bag
+*   **Shoes:** Chunky white sneakers (or Black combat boots, depending on the vibe)
+*   *Why it works:* Tucking the baby tee into the wide-leg khaki trousers highlights your waist while playing with looser tailoring on the bottom. Add the brown leather belt to tie the earthy khaki tones together, and finish with chunky white sneakers for a fresh, everyday retro look.
+
+  Fit card: Obsessed with the nostalgic colorway on this Y2K butterfly baby tee! It's giving major early 2000s mall-goth energy and I'm honestly tempted to keep it. Grab it on my Depop right now for just $18 before I change my mind.
+
+0 model calls this session, 2 served from cache
 ```
 
 **The three tools, tested one at a time**
 
 ```
 $ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
-
+[{'id': 'lst_002', 'title': 'Y2K Baby Tee — Butterfly Print', 'description': 'Super cute early 2000s baby tee with butterfly graphic. Fitted crop length. Tag says medium but fits like a small.', 'category': 'tops', 'style_tags': ['y2k', 'vintage', 'graphic tee', 'cottagecore'], 'size': 'S/M', 'condition': 'excellent', 'price': 18.0, 'colors': ['white', 'pink', 'purple'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_006', 'title': 'Graphic Tee — 2003 Tour Bootleg Style', 'description': 'Vintage-style bootleg tee with faded graphic. Slightly boxy fit. 100% cotton, soft and worn-in.', 'category': 'tops', 'style_tags': ['graphic tee', 'vintage', 'grunge', 'streetwear', 'band tee'], 'size': 'L', 'condition': 'good', 'price': 24.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_017', 'title': 'Mesh Long-Sleeve Top — Black', 'description': 'Sheer black mesh long-sleeve. Great for layering under a graphic tee or over a bralette. Stretchy material, fits true to size.', 'category': 'tops', 'style_tags': ['y2k', 'grunge', 'goth', 'layering'], 'size': 'S/M', 'condition': 'excellent', 'price': 15.0, 'colors': ['black'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_033', 'title': 'Vintage Band Tee — Faded Grey', 'description': 'Faded grey band-style tee with distressed graphic. Crew neck. Fits boxy. Well-loved but no holes or major damage.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'band tee', 'graphic tee', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 19.0, 'colors': ['grey', 'charcoal'], 'brand': None, 'platform': 'depop'}, {'id': 'lst_011', 'title': 'Low-Rise Cargo Pants — Khaki', 'description': 'Y2K era low-rise cargo pants. Lots of pockets. Khaki color, slightly distressed at the hems. Great for layering with a long tee.', 'category': 'bottoms', 'style_tags': ['y2k', 'cargo', '2000s', 'streetwear'], 'size': 'W29', 'condition': 'fair', 'price': 27.0, 'colors': ['khaki', 'tan'], 'brand': None, 'platform': 'poshmark'}, {'id': 'lst_015', 'title': 'Vintage Graphic Hoodie — Faded Black', 'description': 'Faded black pullover hoodie with barely-visible vintage graphic on the chest. Cozy interior. Some pilling but adds to the worn-in look.', 'category': 'tops', 'style_tags': ['vintage', 'grunge', 'graphic', 'streetwear'], 'size': 'L', 'condition': 'fair', 'price': 26.0, 'colors': ['black', 'charcoal'], 'brand': None, 'platform': 'depop'}]
 ```
 
 ```
-$ python -c "from tools import suggest_outfit; ..."
+$ python -c "from tools import suggest_outfit; from utils.data_loader import get_example_wardrobe, load_listings; print(suggest_outfit(load_listings()[0], get_example_wardrobe()))"
+Here are two outfit ideas that pair the vintage Levi's 501 jeans with items already in the wardrobe:
 
+**Outfit 1: Casual & Effortless**
+*   **Top:** White ribbed tank top
+*   **Outerwear:** Vintage black denim jacket
+*   **Shoes:** Chunky white sneakers
+*   **Accessories:** Black crossbody bag
+*   *Why it works:* The medium-wash Levi's and the white ribbed tank create a classic, timeless base. Tossing on the black denim jacket adds a cool double-denim contrast, while the chunky white sneakers and black crossbody keep the look relaxed and modern for daytime wear.
+
+**Outfit 2: Edgy & Cozy**
+*   **Top:** Oversized grey crewneck sweatshirt
+*   **Shoes:** Black combat boots
+*   **Accessories:** Brown leather belt, Black crossbody bag
+*   *Why it works:* Tucking the medium-wash 501s into the brown leather belt adds a touch of definition before layering the oversized grey crewneck over top (you could do a casual half-tuck). Paired with the black combat boots, this look leans into the vintage, slightly rugged aesthetic of the jeans while staying comfortable and grounded.
 ```
 
 ```
-$ python -c "from tools import create_fit_card; ..."
-
+$ python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
+Nothing beats the vintage fade on these classic Levi's 501 jeans. Just throw them on with some fresh white sneakers for that effortless model-off-duty vibe. Grab this medium wash pair for $38.0 on depop before I change my mind and keep them!
 ```
 
 ---
@@ -147,15 +179,15 @@ $ python -c "from tools import create_fit_card; ..."
 
 **Moment 1**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* A function that pulls a description, a size, and a price ceiling out of a plain language query like "vintage graphic tee under $30, size M", using regex only.
+- *What came back:* A working version that matched prices after words like "under" or "below", and size either from a phrase like "size M" or a bare size word found anywhere in the sentence.
+- *What I changed:* Later in the unit I got the professor's finished agent.py, and his parser handled a few things more carefully than mine, matching a trailing bare size only at the end of a sentence instead of anywhere, and matching a price right after a dollar sign rather than needing a word like "under" in front of it. I swapped his version in over mine once I saw the difference.
 
 **Moment 2**
 
-- *What I asked for:*
-- *What came back:*
-- *What I changed:*
+- *What I asked for:* To test suggest_outfit and create_fit_card from a terminal after writing them, calling the model for real.
+- *What came back:* A ModuleNotFoundError, no module named google, instead of a real response.
+- *What I changed:* I checked the repo for a virtual environment, found .venv already set up at the root, and reran the same test through that interpreter instead of plain python. It worked immediately once the right environment was used.
 
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
