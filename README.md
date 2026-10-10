@@ -289,14 +289,17 @@ All 10 queries returned only listings at or under their max_price. Two queries (
 
 | # | Criterion | Target | Verdict | How I decided |
 |---|---|---|---|---|
-| 1 |  |  |  |  |
-| 2 |  |  |  |  |
-| 3 |  |  |  |  |
-| 4 |  |  |  |  |
-| 5 |  |  |  |  |
+| 1 | Matching query completes all three tools | 4 of 5 | MET (5/5) | All five tries returned a fit card with no crashes or early stops. |
+| 2 | Impossible query stops before tool 2 | 5 of 5 | MET (5/5) | All five tries set session["error"] and returned before calling suggest_outfit, confirmed by the trace stopping at step 3. |
+| 3 | Item in session matches item passed on | 5 of 5 | MET (5/5) | In every try the trace shows the same item title at select_item and at the input to suggest_outfit. |
+| 4 | Fit card mentions the item's price | 5 of 5 | MET (5/5) | Searched each fit card for the string "$18" and found it in all five. |
+| 5 | Every returned listing is at or under max_price | 10 of 10 | MET (10/10) | Checked the selected item price against the ceiling for each of the 10 queries. Two queries returned empty results which still satisfies the filter since nothing over budget came back. |
 
 **Diagnoses**
 
+None of the criteria was missed. The targets were probably set on the easy side. Criteria 1 through 3 tested the deterministic behavior since search_listings is keyword matching with no model call, so the same query always picks the same item and the branch always fires the same way. The only criteria that depend on the model are 4 and 5, and criterion 4 passed because the prompt for create_fit_card explicitly hands the price to the model as a fact to include. Criterion 5 does not involve the model at all since search_listings filters by price before scoring.
+
+The criterion I would tighten is criterion 1. Right now it just checks that the agent finishes without crashing. A harder version would check that the outfit suggestion actually names at least one item from the wardrobe, which would test whether suggest_outfit is using the wardrobe data rather than making something up.
 
 
 ---
