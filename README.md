@@ -185,7 +185,7 @@ Nothing beats the vintage fade on these classic Levi's 501 jeans. Just throw the
 
 **Moment 2**
 
-- *What I asked for:* To test suggest_outfit and create_fit_card from a terminal after writing them, calling the model for real.
+- *What I asked for:* To test suggest_outfit and create_fit_card from a terminal, calling the model for real.
 - *What came back:* A ModuleNotFoundError, no module named google, instead of a real response.
 - *What I changed:* I checked the repo for a virtual environment, found .venv already set up at the root, and reran the same test through that interpreter instead of plain python. It worked immediately once the right environment was used.
 
@@ -209,18 +209,63 @@ Nothing beats the vintage fade on these classic Levi's 501 jeans. Just throw the
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. Matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. Impossible query stops before tool 2 | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Item in session matches item passed on | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card mentions the item's price | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Every returned listing is at or under max_price | 10 of 10 | PASS | PASS | PASS | PASS | PASS | MET (10/10) |
 
 **Real output from one try**, pasted as text, naming the file and function
 that produced it:
 
-```
+**Criterion 1** — `run_eval.py::run_once`, query: `vintage graphic tee under $30`
 
 ```
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+- search_results: 10
+
+Fit card:
+Found my ultimate Y2K holy grail and I'm honestly so tempted to keep it. This adorable butterfly baby tee is giving major early-2000s pop star off-duty vibes. Snagged it on Depop for just $18, but check out my page to grab it before I change my mind!
+```
+
+**Criterion 2** — `run_eval.py::run_once`, query: `designer ballgown size XXS under $5`
+
+```
+- stopped early: yes — Nothing in the listings matched description 'designer ballgown', size XXS, under $5.
+Things to change: try broader words — 'jacket' finds more than 'cropped corduroy jacket'; drop the size, or try a neighbouring one; raise the price ceiling above $5.
+- selected_item: (none)
+- search_results: 0
+```
+
+**Criterion 3** — `run_eval.py::run_once`, query: `vintage graphic tee under $30`
+
+```
+- stopped early: no
+- selected_item: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+- search_results: 10
+
+Trace:
+[3] select_item
+      out: Y2K Baby Tee — Butterfly Print ($18.0, depop)
+[4] suggest_outfit
+      in:  Y2K Baby Tee — Butterfly Print ($18.0, depop)
+```
+
+The selected_item id (lst_002) is the same item that reaches suggest_outfit, confirmed by the trace showing the same title passed in.
+
+**Criterion 4** — `run_eval.py::run_once`, query: `vintage graphic tee under $30`
+
+```
+Fit card:
+Obsessed with the pink and purple print on this Y2K butterfly baby tee. It's giving major early-2000s mall goth energy, and I'm listing it on Depop for just $18. Grab it before I change my mind and keep it for myself!
+```
+
+The price $18 appears in the fit card.
+
+**Criterion 5** — `run_eval.py::run_once`, 10 budget filter queries
+
+All 10 queries returned only listings at or under their max_price. Two queries (wool sweater under $40 and crossbody bag under $30) returned empty results, which still satisfies the criterion since no over-budget listing was returned. The other eight returned items priced at $18, $42, $55, $30, $20, $30, $32, and $30, all under their respective ceilings of $30, $50, $60, $35, $45, $50, $35, and $40.
 
 ---
 
