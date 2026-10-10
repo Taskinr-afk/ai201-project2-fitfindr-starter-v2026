@@ -189,6 +189,12 @@ Nothing beats the vintage fade on these classic Levi's 501 jeans. Just throw the
 - *What came back:* A ModuleNotFoundError, no module named google, instead of a real response.
 - *What I changed:* I checked the repo for a virtual environment, found .venv already set up at the root, and reran the same test through that interpreter instead of plain python. It worked immediately once the right environment was used.
 
+**Moment 3**
+
+- *What I asked for:* Help identifying what to improve after all five criteria already passed. I needed something measurable to change and rerun.
+- *What came back:* A suggestion to fix the price formatting in create_fit_card, where raw floats like 18.0 showed up as "$18.0" in fit cards instead of "$18". The fix was adding :g to the format string.
+- *What I changed:* Nothing really about the fix itself, since the diagnosis was right and the one line change worked on the first try. The after run confirmed zero trailing zeros across all fit cards.
+
 <!-- ═══════════════════════ UNIT 4 — THE TEST ═══════════════════════
 
      Don't fill these in during unit 3.
