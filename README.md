@@ -344,24 +344,23 @@ full. -->
 
      `python run_eval.py --label after` -->
 
-**What I changed:**
+**What I changed:** In create_fit_card in tools.py, changed the price format string from `${new_item['price']}` to `${new_item['price']:g}`. The `:g` format strips any of the trailing zeros so the model sees "$18" instead of "$18.0" in its prompt.
 
-**Which failure it was meant to fix:**
+**Which failure it was meant to fix:** Not a failure against the criteria, since all five MET. The diagnosis said the targets were easy and the model facing parts were the only place anything could drift. In the before run, some fit cards wrote the price as "$18.0" or "$55.0" instead of "$18" or "$55" because the prompt handed the raw float to the model. The trailing zero is not wrong but it looked pretty much like a bug when I started encountering it alot. 
 
 ### Run Log — After
 
 | Criterion | Target | Try 1 | Try 2 | Try 3 | Try 4 | Try 5 | Verdict |
 |---|---|---|---|---|---|---|---|
-| 1.  |  |  |  |  |  |  |  |
-| 2.  |  |  |  |  |  |  |  |
-| 3.  |  |  |  |  |  |  |  |
-| 4.  |  |  |  |  |  |  |  |
-| 5.  |  |  |  |  |  |  |  |
+| 1. Matching query completes all three tools | 4 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 2. Impossible query stops before tool 2 | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 3. Item in session matches item passed on | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 4. Fit card mentions the item's price | 5 of 5 | PASS | PASS | PASS | PASS | PASS | MET (5/5) |
+| 5. Every returned listing is at or under max_price | 10 of 10 | PASS | PASS | PASS | PASS | PASS | MET (10/10) |
 
 **Did it help, and how do I know:**
 
-<!-- If it made things worse, say that. Honestly reported, that earns full
-     credit and is more interesting than one that worked. -->
+Yes, in the before run, several fit cards wrote the price with a trailing zero like "$18.0" or "$55.0". In the after run, every fit card across all tries writes clean prices like "$18", "$42", "$55", "$30", "$20", and "$32". The change did not affect any criterion verdict since all five already MET, but it fixed the formatting issue the diagnosis identified.
 
 
 

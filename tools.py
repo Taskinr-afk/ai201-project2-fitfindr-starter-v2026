@@ -225,7 +225,7 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
         f"actually post when reselling or showing off this thrifted find.\n\n"
         f"Item: {new_item['title']}, a {new_item['category']} in "
         f"{', '.join(new_item['colors'])}.\n"
-        f"Price: ${new_item['price']} on {new_item['platform']}.\n"
+        f"Price: ${new_item['price']:g} on {new_item['platform']}.\n"
         f"Outfit idea: {outfit}\n\n"
         "Mention the item, the price, and the platform once each. Be specific "
         "about the vibe, and write it like a real social post, not a product "
