@@ -440,4 +440,21 @@ None of the criteria were missed. and all five met their targets in both the bef
 
 ---
 
+## Capstone
+
+**What This Extends**
+FitFindr, my Unit 3/4 project. The three existing tools stay as they are. I'm adding a fourth tool, compare_listings, and one new branch in the planning loop that calls it when search returns two or more hits.
+
+**The Shape**
+Shape C — extend one capability. compare_listings takes 2-3 listings from search_listings and returns a side-by-side comparison on price, condition, size fit, and a short reason for the pick. The agent calls it after search_listings when there are at least two results, before suggest_outfit. With one result or none, the loop skips it and behaves exactly as it did before.
+
+Out of scope:
+1. No changes to search_listings ranking, the size parser, or the price regex.
+2. No changes to suggest_outfit or create_fit_card.
+3. No image comparison and no fetching external listing data.
+4. compare_listings stays a plain function in tools.py — not exposed over MCP. Keeps it a pure function over data the agent already has.
+5. No UI changes to app.py beyond printing the comparison when it runs.
+
+---
+
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
