@@ -232,3 +232,81 @@ def create_fit_card(outfit: str, new_item: dict) -> str:
         "listing."
     )
     return generate(prompt)
+
+
+# ── Tool 4: compare_listings ──────────────────────────────────────────────────
+
+_CONDITION_RANK = {"excellent": 2, "good": 1, "fair": 0}
+
+
+def compare_listings(items: list[dict], wanted_size: str | None = None) -> dict:
+    """
+    Side-by-side comparison of 2-3 listings from search_listings.
+
+    Pure function over data the agent already has — no model call, no I/O.
+    The agent calls this after search_listings when len(results) >= 2, before
+    suggest_outfit, to pick which item to build the outfit around.
+
+    Args:
+        items:        2-3 listing dicts, as returned by search_listings.
+                      More than 3 are truncated to the first 3 (best search
+                      scores). Fewer than 2 is a usage error.
+        wanted_size:  the size the user asked for, or None. Used only to label
+                      size_fit — does not re-filter.
+
+    Returns:
+        A dict with:
+          rows:        list of {id, title, price, condition, size, size_fit,
+                       platform, brand} — one per item, in input order.
+          pick_id:     id of the chosen item.
+          pick_reason: one-sentence string naming the fields that decided it.
+
+    Pick rule:
+        1. Best condition tier wins (excellent > good > fair).
+        2. Among ties, lowest price wins.
+        3. Still tied -> first in input order (best search score).
+    """
+    if not isinstance(items, list) or len(items) < 2:
+        raise ValueError("compare_listings needs at least 2 items")
+
+    items = items[:3]
+
+    rows = []
+    for it in items:
+        rows.append({
+            "id": it["id"],
+            "title": it["title"],
+            "price": it["price"],
+            "condition": it["condition"],
+            "size": it["size"],
+            "size_fit": _size_fit(wanted_size, it["size"]),
+            "platform": it["platform"],
+            "brand": it.get("brand"),
+        })
+
+    best_rank = max(_CONDITION_RANK.get(r["condition"], -1) for r in rows)
+    tier = [r for r in rows if _CONDITION_RANK.get(r["condition"], -1) == best_rank]
+    cheapest = min(r["price"] for r in tier)
+    winners = [r for r in tier if r["price"] == cheapest]
+    pick = winners[0]
+
+    if len(tier) == 1:
+        reason = f"only {pick['condition']} option at ${pick['price']:g}"
+    elif len(winners) == 1:
+        reason = f"cheapest among {pick['condition']} options at ${pick['price']:g}"
+    else:
+        reason = f"tied on condition ({pick['condition']}) and price (${pick['price']:g}); top search match"
+
+    return {"rows": rows, "pick_id": pick["id"], "pick_reason": reason}
+
+
+def _size_fit(wanted: str | None, listing_size: str) -> str:
+    if not wanted:
+        return "unknown"
+    tokens = _size_tokens(listing_size)
+    if any(t.startswith("ONE SIZE") for t in tokens):
+        return "one-size"
+    wanted_tokens = _size_tokens(wanted)
+    if not (wanted_tokens & tokens):
+        return "no-match"
+    return "exact" if len(tokens) == 1 else "range"
