@@ -33,9 +33,14 @@ then deploy it. A structured log you were handed teaches you nothing about
 what belongs in one — and the timing field is the one everybody skips.
 """
 
+import json
 import os
+import pathlib
 import sys
 import threading
+import time
+import uuid
+from datetime import datetime, timezone
 
 # config first, and before anything that talks to the model: it loads your .env
 # and fixes the Windows console encoding for every module that imports it.
@@ -45,8 +50,27 @@ from flask import Flask, jsonify, request
 
 from agent import run_agent
 from utils.data_loader import get_example_wardrobe
+import generate
 
 app = Flask(__name__)
+
+
+# ── structured request log ───────────────────────────────────────────────────
+# Capstone instrumentation. One JSON record per /ask request, append-only to
+# logs/requests.jsonl. Named fields, not sentences — so grep and jq both work.
+# Failures (400s and 500s) write records too; a run that only shows up as an
+# absence is one you can't diagnose.
+_LOG_DIR = pathlib.Path(__file__).parent / "logs"
+_LOG_FILE = _LOG_DIR / "requests.jsonl"
+_log_lock = threading.Lock()
+
+
+def _write_log(record: dict) -> None:
+    _LOG_DIR.mkdir(exist_ok=True)
+    line = json.dumps(record, ensure_ascii=False, default=str)
+    with _log_lock:
+        with _LOG_FILE.open("a", encoding="utf-8") as f:
+            f.write(line + "\n")
 
 
 # ── one request at a time ─────────────────────────────────────────────────────
@@ -107,10 +131,20 @@ def ask():
                                                 example wardrobe the CLI uses.
     Out:  the session dict from run_agent(), as JSON.
     """
+    t0 = time.perf_counter()
+    request_id = uuid.uuid4().hex[:8]
+    ts = datetime.now(timezone.utc).isoformat()
+    tokens_before = generate.token_counts()
+
     payload = request.get_json(silent=True) or {}
     query = (payload.get("query") or "").strip()
     if not query:
-        # 400 rather than a stack trace: the caller can act on this one.
+        _write_log({
+            "ts": ts, "request_id": request_id, "query": query,
+            "status": "bad_request", "http": 400,
+            "duration_ms": round((time.perf_counter() - t0) * 1000, 1),
+            "error": "missing or empty query field",
+        })
         return jsonify({"error": "Send JSON with a 'query' field, e.g. "
                                  '{"query": "vintage graphic tee under $30"}'}), 400
 
@@ -118,16 +152,6 @@ def ask():
     if not isinstance(wardrobe, dict):
         wardrobe = get_example_wardrobe()
 
-    # A queued request should look like a queued request. Without this the
-    # second caller just sits there, and "slow" and "waiting its turn" are
-    # indistinguishable from the outside — which is how people conclude the
-    # deployment is broken when it is behaving exactly as designed.
-    #
-    # This is NOT the logging you add in the follow-along. It prints nothing
-    # on the normal path, carries no timing and counts nothing; it says only
-    # that this request had to wait. `locked()` can be a moment out of date,
-    # so the note is occasionally missed — which costs nothing, because
-    # nothing depends on it.
     if _one_at_a_time.locked():
         print(
             "  [serve] another request is still running. This one is waiting "
@@ -144,11 +168,34 @@ def ask():
         except Exception as exc:  # noqa: BLE001 — a 500 with a sentence beats a hang
             failure = f"{type(exc).__name__}: {exc}"
 
-    # Outside the lock: building a response is not work the next caller should
-    # be waiting on.
+    duration_ms = round((time.perf_counter() - t0) * 1000, 1)
+    tokens_after = generate.token_counts()
+    prompt_tokens = tokens_after["prompt"] - tokens_before["prompt"]
+    output_tokens = tokens_after["output"] - tokens_before["output"]
+
     if failure is not None:
+        _write_log({
+            "ts": ts, "request_id": request_id, "query": query,
+            "status": "error", "http": 500,
+            "duration_ms": duration_ms,
+            "prompt_tokens": prompt_tokens, "output_tokens": output_tokens,
+            "error": failure,
+        })
         return jsonify({"error": failure}), 500
 
+    comparison = session.get("comparison")
+    _write_log({
+        "ts": ts, "request_id": request_id, "query": query,
+        "status": "ok" if not session.get("error") else "no_match",
+        "http": 200,
+        "duration_ms": duration_ms,
+        "search_hits": len(session.get("search_results") or []),
+        "comparison_ran": bool(comparison),
+        "pick_reason": comparison["pick_reason"] if comparison else None,
+        "selected_item_id": (session.get("selected_item") or {}).get("id"),
+        "prompt_tokens": prompt_tokens, "output_tokens": output_tokens,
+        "error": session.get("error"),
+    })
     return jsonify(session)
 
 

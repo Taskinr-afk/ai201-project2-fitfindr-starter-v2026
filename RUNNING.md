@@ -246,3 +246,64 @@ history is what shows your criteria existed before your results did.
 units.
 
 `results/` is deliberately **not** in `.gitignore`.
+
+---
+
+## Capstone — Path B (local with logs)
+
+The capstone extends FitFindr with a fourth tool (`compare_listings`) and
+instruments `serve.py` so every request is recorded. I'm on Path B — the
+system runs on my machine with a committed log — because the free host tier
+is 512 MB and I'd rather spend the unit on the testing half than on wiring up
+hosting.
+
+### Environment
+
+- Python 3.11 (3.10+ works)
+- Dependencies pinned in `requirements.txt` — Flask, google-genai, mcp, pytest
+- `.env` with `GOOGLE_API_KEY=<your key>` in the repo root
+- No model files, no local weights — everything goes through Gemini 3.5
+  Flash-Lite
+
+### One command to start it
+
+From a clean checkout, after `pip install -r requirements.txt` and `cp
+.env.example .env` (then paste your key):
+
+```bash
+python serve.py
+```
+
+Server binds `http://localhost:5000`. One request at a time (see the long note
+in `serve.py` for why).
+
+### Hitting it
+
+```bash
+curl -X POST http://localhost:5000/ask \
+  -H 'Content-Type: application/json' \
+  -d '{"query": "vintage graphic tee under $30"}'
+
+curl http://localhost:5000/health
+```
+
+### Where the log goes
+
+Every `/ask` request appends one JSON record to `logs/requests.jsonl`.
+Failures (400 for a missing query, 500 for an agent exception) write records
+too. Fields:
+
+`ts, request_id, query, status, http, duration_ms, search_hits,
+comparison_ran, pick_reason, selected_item_id, prompt_tokens, output_tokens,
+error`
+
+### Measuring cost
+
+```bash
+python scripts/measure_cost.py            # 10 runs, cache off
+```
+
+Script runs the agent N times (cache disabled), reads tokens from
+`generate.token_counts()`, times wall-clock with `time.perf_counter()`, and
+prints averages plus the $ figure at the Gemini published rate.
+
