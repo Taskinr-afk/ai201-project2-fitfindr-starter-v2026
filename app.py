@@ -118,6 +118,14 @@ def _ask_one(query, wardrobe, use_trace):
         print(f"  {session['error']}")
     else:
         item = session["selected_item"] or {}
+        comparison = session.get("comparison")
+        if comparison:
+            print("  Compared:")
+            for row in comparison["rows"]:
+                marker = "*" if row["id"] == comparison["pick_id"] else " "
+                print(f"   {marker} {row['title']} — ${row['price']:g}, {row['condition']}, size {row['size']} ({row['size_fit']}) on {row['platform']}")
+            print(f"  Pick:     {comparison['pick_reason']}")
+            print()
         print(f"  Found:    {item.get('title')} — ${item.get('price')} on {item.get('platform')}")
         print()
         print(f"  Outfit:   {session['outfit_suggestion']}")
