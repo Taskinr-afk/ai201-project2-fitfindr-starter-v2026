@@ -446,7 +446,7 @@ None of the criteria were missed. and all five met their targets in both the bef
 FitFindr, my Unit 3/4 project. The three existing tools stay as they are. I'm adding a fourth tool, compare_listings, and one new branch in the planning loop that calls it when search returns two or more hits.
 
 **The Shape**
-Shape C — extend one capability. compare_listings takes 2-3 listings from search_listings and returns a side-by-side comparison on price, condition, size fit, and a short reason for the pick. The agent calls it after search_listings when there are at least two results, before suggest_outfit. With one result or none, the loop skips it and behaves exactly as it did before.
+I chose Shape C, which extends one capability. compare_listings takes 2-3 listings from search_listings and returns a side-by-side comparison on price, condition, size fit, and a short reason for the pick. The agent calls it after search_listings when there are at least two results, before suggest_outfit. With one result or none, the loop skips it and behaves exactly as it did before.
 
 Out of scope:
 1. No changes to search_listings ranking, the size parser, or the price regex.
@@ -454,6 +454,66 @@ Out of scope:
 3. No image comparison and no fetching external listing data.
 4. compare_listings stays a plain function in tools.py — not exposed over MCP. Keeps it a pure function over data the agent already has.
 5. No UI changes to app.py beyond printing the comparison when it runs.
+
+**Running It**
+Path B — local with logs. The full start command and environment are in [RUNNING.md](RUNNING.md) under the Capstone section. One command: `python serve.py`. Server binds `http://localhost:5000`, one request at a time.
+
+**Instrumentation**
+Every `/ask` request writes one JSON record to `logs/requests.jsonl`, appended. Failures write records too — a 400 for a missing query and a 500 for an agent exception. Fields per record:
+
+- `ts` — ISO-8601 UTC timestamp
+- `request_id` — 8-char uuid4 prefix
+- `query` — the raw user query string
+- `status` — `ok`, `no_match`, `bad_request`, or `error`
+- `http` — HTTP status code returned
+- `duration_ms` — end-to-end wall time, including the queue wait
+- `search_hits` — how many listings search_listings returned
+- `comparison_ran` — true when `len(results) >= 2` triggered the new branch
+- `pick_reason` — the string compare_listings used to explain its pick
+- `selected_item_id` — the listing id handed to suggest_outfit
+- `prompt_tokens` / `output_tokens` — per-request delta from `generate.token_counts()`
+- `error` — the error message when not null
+
+Eleven entries from one session (10 /ask runs plus 1 rejected request):
+
+```
+[01] {"ts": "2026-11-15T00:05:24.142854+00:00", "request_id": "a05c81d3", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "missing or empty query field"}
+
+[02] {"ts": "2026-11-15T00:05:26.211339+00:00", "request_id": "9b9cdf31", "query": "vintage graphic tee under $30", "status": "ok", "http": 200, "duration_ms": 7533.8, "search_hits": 10, "comparison_ran": true, "pick_reason": "only excellent option at $18", "selected_item_id": "lst_002", "prompt_tokens": 649, "output_tokens": 407, "error": null}
+
+[03] {"ts": "2026-11-15T00:05:35.797382+00:00", "request_id": "c6bee6b1", "query": "oversized flannel shirt size L", "status": "ok", "http": 200, "duration_ms": 4390.0, "search_hits": 3, "comparison_ran": true, "pick_reason": "cheapest among excellent options at $17", "selected_item_id": "lst_040", "prompt_tokens": 618, "output_tokens": 363, "error": null}
+
+[04] {"ts": "2026-11-15T00:05:42.251183+00:00", "request_id": "4b2fa6b9", "query": "y2k baby tee under $25", "status": "ok", "http": 200, "duration_ms": 3916.3, "search_hits": 5, "comparison_ran": true, "pick_reason": "cheapest among excellent options at $15", "selected_item_id": "lst_017", "prompt_tokens": 504, "output_tokens": 247, "error": null}
+
+[05] {"ts": "2026-11-15T00:05:48.231708+00:00", "request_id": "4feaec61", "query": "corduroy jacket, M", "status": "ok", "http": 200, "duration_ms": 4173.6, "search_hits": 3, "comparison_ran": true, "pick_reason": "cheapest among excellent options at $33", "selected_item_id": "lst_032", "prompt_tokens": 594, "output_tokens": 351, "error": null}
+
+[06] {"ts": "2026-11-15T00:05:54.457006+00:00", "request_id": "775d8bf7", "query": "cargo pants size 30 under $40", "status": "ok", "http": 200, "duration_ms": 4106.2, "search_hits": 5, "comparison_ran": true, "pick_reason": "only excellent option at $15", "selected_item_id": "lst_017", "prompt_tokens": 590, "output_tokens": 347, "error": null}
+
+[07] {"ts": "2026-11-15T00:06:00.615567+00:00", "request_id": "0342d1a0", "query": "denim jacket under $50", "status": "ok", "http": 200, "duration_ms": 4184.9, "search_hits": 7, "comparison_ran": true, "pick_reason": "cheapest among excellent options at $42", "selected_item_id": "lst_007", "prompt_tokens": 605, "output_tokens": 340, "error": null}
+
+[08] {"ts": "2026-11-15T00:06:06.896091+00:00", "request_id": "ba001101", "query": "levi 501 jeans", "status": "ok", "http": 200, "duration_ms": 4351.5, "search_hits": 3, "comparison_ran": true, "pick_reason": "cheapest among good options at $30", "selected_item_id": "lst_037", "prompt_tokens": 599, "output_tokens": 364, "error": null}
+
+[09] {"ts": "2026-11-15T00:06:13.322175+00:00", "request_id": "262486fa", "query": "band tee size M", "status": "ok", "http": 200, "duration_ms": 19162.3, "search_hits": 2, "comparison_ran": true, "pick_reason": "cheapest among excellent options at $15", "selected_item_id": "lst_017", "prompt_tokens": 591, "output_tokens": 358, "error": null}
+
+[10] {"ts": "2026-11-15T00:06:34.542710+00:00", "request_id": "1c46c65f", "query": "wool sweater under $35", "status": "no_match", "http": 200, "duration_ms": 2308.4, "search_hits": 0, "comparison_ran": false, "pick_reason": null, "selected_item_id": null, "prompt_tokens": 0, "output_tokens": 0, "error": "Nothing in the listings matched description 'wool sweater', under $35. Things to change: try broader words; raise the price ceiling above $35."}
+
+[11] {"ts": "2026-11-15T00:06:38.908809+00:00", "request_id": "2f73e35a", "query": "designer ballgown size XXS under $5", "status": "no_match", "http": 200, "duration_ms": 2426.9, "search_hits": 0, "comparison_ran": false, "pick_reason": null, "selected_item_id": null, "prompt_tokens": 0, "output_tokens": 0, "error": "Nothing in the listings matched description 'designer ballgown', size XXS, under $5. Things to change: try broader words; drop the size; raise the price ceiling above $5."}
+```
+
+Two failure shapes are visible in the log: `bad_request` (http 400, no query field) and `no_match` (http 200, search returned zero hits, no model calls made so tokens are 0).
+
+**What It Costs**
+$0.00020 per run, measured.
+
+Method: `scripts/measure_cost.py` runs the agent 10 times with `AI201_CACHE=0` (so every call actually hits the model), captures per-run tokens via `generate.token_counts()` deltas, times each run with `time.perf_counter()`. The dollar figure uses the published Gemini 3.5 Flash-Lite rate ($0.10 per 1M input tokens, $0.40 per 1M output). Tokens are measured; the rate is the only thing published pricing lets you multiply measured tokens by.
+
+Averages over 10 runs:
+
+- Wall time: 7.59 s (one run hit the model's per-minute rate limit and waited 27s — that drags the mean; median was closer to 4.4 s)
+- Prompt tokens: 609.4
+- Output tokens: 356.7
+- $ per run: $0.00020
+- $ per 100 runs/day: $0.00020 × 100 = **$0.0204/day**, or roughly 2 cents a day for a hundred people. At 100/day for a year, that's $7.44 in API spend.
 
 ---
 
