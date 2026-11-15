@@ -175,6 +175,21 @@ failure. The log half matters as much as the HTTP half: a 400 without a log
 entry is a failure that leaves no record, which defeats the whole point of
 the instrumentation work in Milestone 3.
 
+> **Tightened in Milestone 6 as "The Improvement" target.** 5 / 5 was met on
+> three trials, so the original target was too narrow — it only exercised
+> the missing/empty-query branch I had already coded for. A real "bad path"
+> criterion has to cover ill-typed inputs the handler never sees in normal
+> use, since those are where a 400 turns into an accidental 500.
+>
+> **Tightened target:** across 10 payload variants (the original 5 plus 5
+> ill-typed ones: `query` as list, number, bool, dict, and a request with no
+> `Content-Type: application/json` header), every request returns HTTP 400
+> AND writes a `status: "bad_request"` record. 10 / 10 across 3 trials.
+>
+> This isn't a revision because the original was broken — the original was
+> MET. The tightening is listed here so the Milestone 6 improvement has a
+> written target to hit.
+
 ## 5. Every /ask request produces exactly one log record (observability)
 
 Across 20 `/ask` requests (a mix of `ok`, `no_match`, and `bad_request`),
@@ -188,7 +203,7 @@ and `duration_ms`.
 exits. A dropped line is a run I cannot diagnose; a doubled line is one I
 would double-count in any metric built on it. The writer is a plain append
 under a lock, so the behaviour is meant to be exact. Milestone 5 cannot
-verify anything else about the system without this holding first — if the
+verify anything else about the system without this holding first, if the
 log is unreliable, every other criterion built on reading it is unreliable
 too.
 
