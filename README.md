@@ -515,6 +515,80 @@ Averages over 10 runs:
 - $ per run: $0.00020
 - $ per 100 runs/day: $0.00020 × 100 = **$0.0204/day**, or roughly 2 cents a day for a hundred people. At 100/day for a year, that's $7.44 in API spend.
 
+**Run Log and Verdicts**
+Produced by `scripts/run_trials.py` on 2026-11-15, with C2 re-scored across a proper mix of hit counts by `scripts/rescore_c2.py`. Full report in [results/capstone_before.md](results/capstone_before.md).
+
+| # | Criterion | Target | Trial 1 | Trial 2 | Trial 3 | Verdict |
+|---|---|---|---|---|---|---|
+| C1 | compare_listings picks by documented rule | 10/10 | 10/10 | 10/10 | 10/10 | MET |
+| C2 | Branch fires iff `search_hits >= 2` | 10/10 (mixed hit counts) | 10/10 | 10/10 | 10/10 | MET |
+| C3 | Every comparison row has all 8 fields | 10/10 of eligible | 10/10 | 10/10 | 10/10 | MET |
+| C4 | Missing query → HTTP 400 + log record | 5/5 | 5/5 | 5/5 | 5/5 | MET |
+| C5 | Every /ask → exactly one valid log record | 20/20 | 20/20 | 20/20 | 20/20 | MET |
+
+Verdict summary: **5/5 MET, no misses to diagnose.** This is honest but uncomfortable — see **What's Still Broken** and **The Improvement** below for the target I'd tighten and the improvement I ran against the tightened target.
+
+Real output from trial 3, one block per criterion. All are produced by the test harness and pasted verbatim from `results/capstone_before.md`.
+
+**C1 — `tools.py::compare_listings` called directly on 10 crafted inputs**
+```
+  [OK] single excellent wins:                expected=b, got=b — only excellent option at $20
+  [OK] cheapest of two excellents:           expected=b, got=b — cheapest among excellent options at $20
+  [OK] tie on cond+price picks first:        expected=a, got=a — tied on condition (excellent) and price ($20); top search match
+  [OK] all same tier, cheapest wins:         expected=b, got=b — cheapest among good options at $15
+  [OK] all fair, pick cheapest:              expected=b, got=b — cheapest among fair options at $10
+  [OK] excellent beats cheaper good:         expected=b, got=b — only excellent option at $50
+  [OK] 3 goods, middle price:                expected=b, got=b — cheapest among good options at $20
+  [OK] excellent at same price as good:      expected=b, got=b — only excellent option at $20
+  [OK] two excellent, one much cheaper:      expected=b, got=b — cheapest among excellent options at $10
+  [OK] mixed; cheapest-excellent at pos 3:   expected=c, got=c — only excellent option at $18
+```
+
+**C2 — `serve.py::ask` → `agent.py::run_agent` branch, re-scored across mixed hit counts**
+```
+  [OK] vintage graphic tee under $30          hits=10  ran=True   expected=True
+  [OK] y2k baby tee under $25                 hits= 5  ran=True   expected=True
+  [OK] cargo pants size 30 under $40          hits= 5  ran=True   expected=True
+  [OK] levi 501 jeans                         hits= 3  ran=True   expected=True
+  [OK] jeans                                  hits= 3  ran=True   expected=True
+  [OK] wool sweater under $35                 hits= 0  ran=False  expected=False
+  [OK] designer ballgown size XXS under $5    hits= 0  ran=False  expected=False
+  [OK] bicycle under $20                      hits= 0  ran=False  expected=False
+  [OK] silk kimono                            hits= 2  ran=True   expected=True
+  [OK] fedora size 7                          hits= 5  ran=True   expected=True
+```
+
+**C3 — `tools.py::compare_listings` row shape, per session**
+```
+  [OK] query_idx=0  rows=3  all_fields_present=True
+  [OK] query_idx=1  rows=3  all_fields_present=True
+  [OK] query_idx=2  rows=3  all_fields_present=True
+  [OK] query_idx=3  rows=3  all_fields_present=True
+  [OK] query_idx=4  rows=3  all_fields_present=True
+  [OK] query_idx=5  rows=3  all_fields_present=True
+  [OK] query_idx=6  rows=3  all_fields_present=True
+  [OK] query_idx=7  rows=2  all_fields_present=True
+  [OK] query_idx=8  rows=3  all_fields_present=True
+  [OK] query_idx=9  rows=3  all_fields_present=True
+```
+
+**C4 — `serve.py::ask` on five bad payloads**
+```
+  payload='{}'                                     → HTTP 400  log_matched_400=True
+  payload='{"query": ""}'                          → HTTP 400  log_matched_400=True
+  payload='{"query": "   "}'                       → HTTP 400  log_matched_400=True
+  payload='{"wardrobe": {"items": []}}'            → HTTP 400  log_matched_400=True
+  payload='{"query": null}'                        → HTTP 400  log_matched_400=True
+  log records added: 5, of which status=bad_request: 5
+```
+
+**C5 — `serve.py::_write_log` over 20 consecutive /ask requests**
+```
+  requests sent: 20
+  log records added: 20
+  valid JSON with required keys: 20
+```
+
 ---
 
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
