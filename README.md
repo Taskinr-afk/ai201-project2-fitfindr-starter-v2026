@@ -589,6 +589,49 @@ Real output from trial 3, one block per criterion. All are produced by the test 
   valid JSON with required keys: 20
 ```
 
+**The Improvement**
+The before run met all five original criteria, which is a sign the targets were conservative. For the improvement I tightened **C4** rather than add a new one: the original only exercised the missing/empty-query branch I had already coded for. A real bad-path criterion has to cover ill-typed inputs the handler never sees in normal use, because that is exactly where a 400 turns into an accidental 500.
+
+**Tightened C4 target:** across 10 payload variants (the original 5 plus 5 ill-typed ones: `query` as list, number, bool, dict, and a request missing the `Content-Type: application/json` header), every request returns HTTP 400 **AND** writes a `status: "bad_request"` record. 10/10 across 3 trials. Also recorded under criterion 4 in `criteria.md`.
+
+**Diagnosis of the before run (file::function, mechanism):** `serve.py::ask` did `(payload.get("query") or "").strip()`. For the original 5 payloads this works — `None`, missing, empty-string all collapse to `""` and fail the `if not query` check with a logged 400. For the 4 ill-typed payloads (`[1,2,3]`, `42`, `true`, `{...}`), `payload.get("query")` returned a truthy non-string, the `or ""` was skipped, and `.strip()` raised `AttributeError`. The outer `except Exception` in the handler converted the crash into a 500, but **the log write for that request never happened** because the logger sits below the validation branch, not around it. So those requests leave no trace at all — the exact failure mode Milestone 3's instrumentation was supposed to make impossible.
+
+**The fix** (one hunk in `serve.py::ask`):
+
+```python
+raw_query = payload.get("query")
+if raw_query is not None and not isinstance(raw_query, str):
+    _write_log({..., "status": "bad_request", "http": 400,
+                "error": f"query must be a string, got {type(raw_query).__name__}"})
+    return jsonify({"error": f"'query' must be a string, got {type(raw_query).__name__}"}), 400
+query = (raw_query or "").strip()
+```
+
+One type check in front of `.strip()`. Writes the same `bad_request` log record the other 400 branches do. No new dependencies, no behavior change on the happy path (verified by one `/ask` with a normal query after the fix — same pick, same selected_item, same fit_card as before).
+
+**Run Log — After (full in [results/capstone_c4_after.md](results/capstone_c4_after.md)):**
+
+| Criterion | Target | Trial 1 | Trial 2 | Trial 3 | Before | After |
+|---|---|---|---|---|---|---|
+| C4 tightened — 10 payload variants | 10/10 | 10/10 | 10/10 | 10/10 | 6/10 | **10/10** |
+
+Side-by-side detail, trial 3:
+
+| Payload | Before HTTP | Before log | After HTTP | After log |
+|---|---|---|---|---|
+| empty object | 400 | bad_request | 400 | bad_request |
+| empty string query | 400 | bad_request | 400 | bad_request |
+| whitespace query | 400 | bad_request | 400 | bad_request |
+| wardrobe only, no query | 400 | bad_request | 400 | bad_request |
+| null query | 400 | bad_request | 400 | bad_request |
+| **query as list** | **500** | **<no log>** | **400** | **bad_request** |
+| **query as number** | **500** | **<no log>** | **400** | **bad_request** |
+| **query as bool** | **500** | **<no log>** | **400** | **bad_request** |
+| **query as object** | **500** | **<no log>** | **400** | **bad_request** |
+| no content-type header | 400 | bad_request | 400 | bad_request |
+
+Did it help: yes. Four payloads that used to crash silently (500 with no log entry) now return a typed 400 with a readable reason and a log record naming the type mismatch. Original C4 (5/5) and the other four capstone criteria are unchanged — confirmed by a single post-fix happy-path `/ask` run.
+
 ---
 
 📖 **How to run this project: [RUNNING.md](RUNNING.md)**
