@@ -630,7 +630,29 @@ Side-by-side detail, trial 3:
 | **query as object** | **500** | **<no log>** | **400** | **bad_request** |
 | no content-type header | 400 | bad_request | 400 | bad_request |
 
-Did it help: yes. Four payloads that used to crash silently (500 with no log entry) now return a typed 400 with a readable reason and a log record naming the type mismatch. Original C4 (5/5) and the other four capstone criteria are unchanged — confirmed by a single post-fix happy-path `/ask` run.
+Did it help: yes. Four payloads that used to crash silently (500 with no log entry) now return a typed 400 with a readable reason and a log record naming the type mismatch. Original C4 (5/5) and the other four capstone criteria are unchanged, which I confirmed by a single post-fix happy-path `/ask` run.
+
+**What's Still Broken**
+All five capstone criteria MET, including the tightened C4. What's still broken is not a missed target but the targets I didn't write.
+
+1. **No latency criterion.** Milestone 3's log had a request at 19.2 s and a cost-script run at 31.0 s (the rate limiter adding a 27 s pause mid-batch). Neither would fail any of my five criteria, because none measure duration. **What I'd tighten/add:** p95 `duration_ms` across 20 contiguous `/ask` runs (warm, cache off) must be under 10 s. I didn't write it originally because I wasn't sure how to separate "the model is slow" from "the rate limiter is doing its job" — and that is exactly the question worth answering, which is why it belongs in the criteria.
+
+2. **C5 is only tested serialised.** The `_log_lock` and `_one_at_a_time` lock in `serve.py` exist specifically so concurrent writes stay intact. I never fired concurrent requests. **What I'd tighten:** "20 concurrent `/ask` requests from 5 clients produce exactly 20 distinct records, no duplicates, no interleaved JSON." The current 20/20 serialised result tells me the logger writes correctly; it tells me nothing about whether the lock holds under contention.
+
+3. **compare_listings' pick rule is simple on purpose.** The condition-tier then price then input-order rule ignores brand reputation, listing age, seller rating, and image quality — real factors a real buyer uses. I chose a simple rule because a complex one would have needed a model call and would have made criterion C1 almost impossible to write (how do I ground-truth an opinion?). Trade I made knowingly, not a bug.
+
+Why I stopped:
+- Latency criterion (#1): would have meant separating rate-limit time from model time, which needs a wrapper around `generate.generate()` to record both. That's at least a half-day of work plus a second improvement cycle. Capstone unit is tight.
+- Concurrent C5 (#2): would need a threading harness and a careful reading of `_write_log` under contention. Related to #1 — both are "stress-test the operational layer." Worth a whole unit on its own.
+
+**The one thing I'd do next** if this were a real system with another unit: wire `compare_listings` pick_reason into `suggest_outfit`'s prompt, so the outfit text reflects *why* the chosen item won — "building an outfit around the excellent-condition pick" rather than ignoring the comparison downstream. The comparison is currently visible only in the log and in `app.py`'s print block; the model never sees it. Connecting that one string would make the extension felt in the user-facing output, which is the only test that actually matters.
+
+**How I Used AI**
+Two specific moments from this capstone (the earlier **How I Used AI** section under the Unit 3/4 project still applies to that work).
+
+1. **Picking the shape and the fourth tool.** I asked Claude to compare two candidates for Shape C — `compare_listings` (takes 2–3 search results and returns a side-by-side) versus `check_wardrobe_gap` (scans the wardrobe for missing categories and seeds search). The reply laid out that `compare_listings` is a pure function over data the agent already has (no new data source, no external calls, easy to write a deterministic criterion for), whereas `check_wardrobe_gap` adds a new input dependency and a harder-to-test contract. I changed nothing about the suggestion but used that framing to write the out-of-scope list in Milestone 1 — specifically the line "compare_listings stays a plain function in tools.py, not exposed over MCP." That line came from accepting the "pure function" framing as a scoping decision, not just a design one.
+
+2. **Catching a weak trial in Milestone 5.** After the first `run_trials.py` pass returned 10/10 on C2, I noticed that my trial scored only the first 10 batch queries, which were all many-hit, so the "mix of 0-hit, 1-hit, 2-hit, many-hit" wording of the criterion wasn't actually tested. Claude proposed re-scoring from the existing log with mixed indices (5 many-hit + 5 zero-hit) instead of burning another 60 API calls on a re-run. I accepted the approach and wrote `scripts/rescore_c2.py` for it, and added a note at the top of the C2 output block in `results/capstone_before.md` acknowledging the re-score so a reader can see the discrepancy between the original scoring and the one I'm reporting. The write-up change was mine; the idea to re-score from the log rather than re-run was the model's.
 
 ---
 
