@@ -18,7 +18,7 @@ import re
 import config
 import trace
 from mcp_client import call_tool
-from tools import suggest_outfit, create_fit_card
+from tools import suggest_outfit, create_fit_card, compare_listings
 from generate import ModelUnavailable
 
 
@@ -87,6 +87,7 @@ def new_session(query: str, wardrobe: dict) -> dict:
         "query": query,              # what the user typed
         "parsed": {},                # description / size / max_price you pulled out of it
         "search_results": [],        # everything search_listings returned
+        "comparison": None,          # compare_listings result when >= 2 search hits (capstone)
         "selected_item": None,       # the one you chose — goes into suggest_outfit
         "wardrobe": wardrobe,        # the user's wardrobe
         "outfit_suggestion": None,   # what suggest_outfit returned
@@ -175,7 +176,17 @@ def run_agent(query: str, wardrobe: dict) -> dict:
         trace.step("branch", note="search returned []: stopping before suggest_outfit")
         return session
 
-    session["selected_item"] = results[0]
+    # Capstone branch: compare top candidates when there are at least two.
+    # One result or none skips this step and the loop behaves as it did before.
+    if len(results) >= 2:
+        comparison = compare_listings(results[:3], wanted_size=parsed["size"])
+        session["comparison"] = comparison
+        trace.step("compare_listings", inputs=f"{len(results[:3])} items",
+                   returned=comparison, note=f"pick={comparison['pick_id']} — {comparison['pick_reason']}")
+        pick_id = comparison["pick_id"]
+        session["selected_item"] = next((r for r in results if r["id"] == pick_id), results[0])
+    else:
+        session["selected_item"] = results[0]
     trace.step("select_item", returned=session["selected_item"])
 
     session["outfit_suggestion"] = suggest_outfit(session["selected_item"], session["wardrobe"])
