@@ -84,3 +84,70 @@
 {"ts": "2026-11-15T00:44:50.709289+00:00", "request_id": "bb2badd0", "query": "mesh top", "status": "ok", "http": 200, "duration_ms": 4151.2, "search_hits": 3, "comparison_ran": true, "pick_reason": "cheapest among excellent options at $15", "selected_item_id": "lst_017", "prompt_tokens": 505, "output_tokens": 271, "error": null}
 {"ts": "2026-11-15T00:44:56.916931+00:00", "request_id": "2b4da836", "query": "track jacket", "status": "ok", "http": 200, "duration_ms": 4794.0, "search_hits": 4, "comparison_ran": true, "pick_reason": "cheapest among excellent options at $42", "selected_item_id": "lst_007", "prompt_tokens": 608, "output_tokens": 372, "error": null}
 {"ts": "2026-11-15T00:45:03.780191+00:00", "request_id": "fd614218", "query": "leather bomber", "status": "ok", "http": 200, "duration_ms": 4491.1, "search_hits": 4, "comparison_ran": true, "pick_reason": "only excellent option at $12", "selected_item_id": "lst_014", "prompt_tokens": 608, "output_tokens": 371, "error": null}
+{"ts": "2026-11-15T00:54:26.150094+00:00", "request_id": "efa4c240", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:28.212103+00:00", "request_id": "024b2c7e", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:30.265946+00:00", "request_id": "4822fe69", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:32.323849+00:00", "request_id": "3907b76f", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:34.375894+00:00", "request_id": "d9df353a", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:44.648217+00:00", "request_id": "d1993b21", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.0, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:46.727684+00:00", "request_id": "b15cfdee", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:48.755775+00:00", "request_id": "42e10946", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:50.826588+00:00", "request_id": "762ed8e5", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:52.890780+00:00", "request_id": "515e00cc", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:54:54.968718+00:00", "request_id": "b50a64d2", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:55:05.271681+00:00", "request_id": "ba6f5851", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:55:07.360710+00:00", "request_id": "095efbc6", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:55:09.432696+00:00", "request_id": "c99a4079", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:55:11.501944+00:00", "request_id": "1cbbc4da", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:55:13.571882+00:00", "request_id": "7bfcbf5e", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:55:15.628758+00:00", "request_id": "0a672d1f", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:55:25.953629+00:00", "request_id": "d43b05c9", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:06.481724+00:00", "request_id": "090e3eac", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:08.592497+00:00", "request_id": "ab83cdf1", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:10.728050+00:00", "request_id": "2226182a", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:12.861608+00:00", "request_id": "e9fd6e78", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:14.995908+00:00", "request_id": "684b433c", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:25.611664+00:00", "request_id": "4c5e4327", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:27.756576+00:00", "request_id": "56a06719", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:29.883737+00:00", "request_id": "dbf11ad8", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:31.998841+00:00", "request_id": "464e42d9", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:34.139651+00:00", "request_id": "6cf2a3ed", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:36.263678+00:00", "request_id": "d07b65b8", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:46.860621+00:00", "request_id": "29f2175e", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:48.983580+00:00", "request_id": "5d873b19", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:51.138177+00:00", "request_id": "a590b455", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:53.285756+00:00", "request_id": "7f080539", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:55.420350+00:00", "request_id": "d725bd03", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:56:57.542276+00:00", "request_id": "19737b3c", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:08.147445+00:00", "request_id": "6eb0ce32", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:29.342827+00:00", "request_id": "5a736071", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.5, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:31.477217+00:00", "request_id": "3729d9b8", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:33.629064+00:00", "request_id": "817757fd", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:35.781524+00:00", "request_id": "37e93532", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:37.908877+00:00", "request_id": "3935b2f8", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.2, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:40.039784+00:00", "request_id": "2f04c533", "query": "[1, 2, 3]", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got list"}
+{"ts": "2026-11-15T00:57:42.159777+00:00", "request_id": "d0196ce2", "query": "42", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got int"}
+{"ts": "2026-11-15T00:57:44.278875+00:00", "request_id": "34a4767c", "query": "True", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "query must be a string, got bool"}
+{"ts": "2026-11-15T00:57:46.395501+00:00", "request_id": "05ff711e", "query": "{'nested': 'x'}", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got dict"}
+{"ts": "2026-11-15T00:57:48.535608+00:00", "request_id": "66f18e44", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:50.639497+00:00", "request_id": "5469a120", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:52.788593+00:00", "request_id": "4a807df0", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:54.927094+00:00", "request_id": "9a44f25c", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:57.051070+00:00", "request_id": "82341762", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:57:59.185498+00:00", "request_id": "aa332986", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:01.317500+00:00", "request_id": "3ee3dc97", "query": "[1, 2, 3]", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "query must be a string, got list"}
+{"ts": "2026-11-15T00:58:03.437042+00:00", "request_id": "e7d9021d", "query": "42", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got int"}
+{"ts": "2026-11-15T00:58:05.562198+00:00", "request_id": "ea2cce60", "query": "True", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got bool"}
+{"ts": "2026-11-15T00:58:07.696223+00:00", "request_id": "ab572aed", "query": "{'nested': 'x'}", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got dict"}
+{"ts": "2026-11-15T00:58:09.840271+00:00", "request_id": "58552887", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:11.992786+00:00", "request_id": "c7823a87", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:14.115341+00:00", "request_id": "023d6a74", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.4, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:16.242225+00:00", "request_id": "2e292dae", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:18.384650+00:00", "request_id": "e0608c73", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:20.527909+00:00", "request_id": "c6fd347f", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:22.652059+00:00", "request_id": "6294fd44", "query": "[1, 2, 3]", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got list"}
+{"ts": "2026-11-15T00:58:24.788907+00:00", "request_id": "4781c76c", "query": "42", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got int"}
+{"ts": "2026-11-15T00:58:26.926659+00:00", "request_id": "b7a37b73", "query": "True", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "query must be a string, got bool"}
+{"ts": "2026-11-15T00:58:29.056766+00:00", "request_id": "2d572cfc", "query": "{'nested': 'x'}", "status": "bad_request", "http": 400, "duration_ms": 0.3, "error": "query must be a string, got dict"}
+{"ts": "2026-11-15T00:58:31.192286+00:00", "request_id": "ac3e7be9", "query": "", "status": "bad_request", "http": 400, "duration_ms": 0.1, "error": "missing or empty query field"}
+{"ts": "2026-11-15T00:58:43.835380+00:00", "request_id": "a882827c", "query": "vintage graphic tee under 30", "status": "ok", "http": 200, "duration_ms": 8580.9, "search_hits": 10, "comparison_ran": true, "pick_reason": "only excellent option at $18", "selected_item_id": "lst_002", "prompt_tokens": 599, "output_tokens": 339, "error": null}

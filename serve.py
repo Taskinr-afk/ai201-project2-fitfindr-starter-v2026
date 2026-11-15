@@ -137,7 +137,20 @@ def ask():
     tokens_before = generate.token_counts()
 
     payload = request.get_json(silent=True) or {}
-    query = (payload.get("query") or "").strip()
+    raw_query = payload.get("query")
+    # Capstone Milestone 6 fix: reject non-string query up front so .strip()
+    # never raises on a list / number / bool / dict. Without this, ill-typed
+    # queries came back as 500s with no log entry.
+    if raw_query is not None and not isinstance(raw_query, str):
+        _write_log({
+            "ts": ts, "request_id": request_id, "query": str(raw_query)[:200],
+            "status": "bad_request", "http": 400,
+            "duration_ms": round((time.perf_counter() - t0) * 1000, 1),
+            "error": f"query must be a string, got {type(raw_query).__name__}",
+        })
+        return jsonify({"error": f"'query' must be a string, got {type(raw_query).__name__}"}), 400
+
+    query = (raw_query or "").strip()
     if not query:
         _write_log({
             "ts": ts, "request_id": request_id, "query": query,
